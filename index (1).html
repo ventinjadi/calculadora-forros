@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#7158e2" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>Calculadora de Forros</title>
+<style>
+  :root{
+    --bg:#f5f6fb;
+    --panel:#ffffff;
+    --ink:#171923;
+    --muted:#6d7280;
+    --line:#dfe2ea;
+    --accent:#7158e2;
+    --accent-2:#a997ff;
+    --accent-soft:#f0edff;
+    --navy:#26324b;
+    --secondary:#8991a3;
+    --warn:#d97706;
+    --warn-soft:#fff7ed;
+    --good:#16845b;
+    --shadow:0 16px 40px rgba(31,35,48,.08);
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(113,88,226,.10), transparent 30%),
+      radial-gradient(circle at 95% 15%, rgba(169,151,255,.10), transparent 28%),
+      var(--bg);
+    min-height:100vh;
+  }
+  .app{max-width:1440px;margin:0 auto;padding:28px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{
+    width:48px;height:48px;border-radius:14px;
+    display:grid;place-items:center;
+    background:linear-gradient(145deg,var(--accent),#4c37bd);
+    color:#fff;font-weight:900;font-size:24px;box-shadow:0 10px 24px rgba(113,88,226,.28)
+  }
+  h1{font-size:28px;line-height:1.1;margin:0 0 4px;font-weight:850;letter-spacing:-.5px}
+  .subtitle{color:var(--muted);font-size:14px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap}
+  button{
+    border:0;border-radius:12px;padding:11px 14px;font:inherit;font-weight:750;cursor:pointer;
+    transition:.18s ease;display:inline-flex;align-items:center;gap:8px
+  }
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(31,35,48,.08)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:#5e48c6;transform:translateY(-1px)}
+
+  .grid{display:grid;grid-template-columns:minmax(340px,420px) 1fr;gap:22px;align-items:start}
+  .panel{background:var(--panel);border:1px solid rgba(223,226,234,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
+  .panel-pad{padding:22px}
+  .panel-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+  .panel-title h2{font-size:17px;margin:0;font-weight:850}
+  .tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:6px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .section{padding:18px 0;border-top:1px solid var(--line)}
+  .section:first-of-type{padding-top:0;border-top:0}
+  .section h3{font-size:13px;text-transform:uppercase;letter-spacing:.7px;margin:0 0 13px;color:#4a5060}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field.full{grid-column:1/-1}
+  label{font-size:12px;font-weight:760;color:#515665}
+  .input-wrap{position:relative}
+  input,select{
+    width:100%;height:44px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:0 12px;
+    font:inherit;color:var(--ink);outline:none;transition:.15s ease
+  }
+  input:focus,select:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px var(--accent-soft)}
+  .unit{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
+  .has-unit input{padding-right:42px}
+  .hint{font-size:11px;line-height:1.4;color:var(--muted);margin-top:4px}
+
+  .support-wrap{display:grid;grid-template-columns:74px 1fr 74px;grid-template-rows:56px 150px 56px;gap:7px;align-items:stretch;max-width:360px;margin:0 auto}
+  .support-center{grid-column:2;grid-row:2;border:1px dashed #cdd1dc;border-radius:14px;background:linear-gradient(135deg,#fafaff,#f5f3ff);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px}
+  .support-center strong{font-size:14px}
+  .support-center span{font-size:11px;color:var(--muted);margin-top:4px}
+  .side-toggle{background:#f0f1f5;border:1px solid var(--line);color:#6c7280;border-radius:11px;justify-content:center;padding:7px;font-size:11px;line-height:1.15;text-align:center}
+  .side-toggle.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 15px rgba(113,88,226,.18)}
+  .side-top{grid-column:2;grid-row:1}.side-bottom{grid-column:2;grid-row:3}
+  .side-left{grid-column:1;grid-row:2;writing-mode:vertical-rl;transform:rotate(180deg)}
+  .side-right{grid-column:3;grid-row:2;writing-mode:vertical-rl}
+  .side-toggle small{font-weight:600;opacity:.86}
+  .support-help{text-align:center;margin-top:10px;font-size:11px;color:var(--muted)}
+  .support-help b{color:var(--accent)}
+
+  details{border:1px solid var(--line);border-radius:13px;padding:0 14px;background:#fbfbfd}
+  summary{cursor:pointer;list-style:none;padding:13px 0;font-size:13px;font-weight:820;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary:after{content:"＋";color:var(--accent);font-size:18px;font-weight:600}
+  details[open] summary:after{content:"−"}
+  .advanced{padding:2px 0 14px}
+
+  .workspace{display:flex;flex-direction:column;gap:22px}
+  .visual{padding:20px 22px 18px;overflow:hidden}
+  .visual-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
+  .visual-head h2{font-size:17px;margin:0 0 4px;font-weight:850}
+  .visual-head p{font-size:12px;color:var(--muted);margin:0}
+  .dimension-pill{background:#f7f7fa;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:750;color:#4d5260;white-space:nowrap}
+  .svg-wrap{height:430px;width:100%;border-radius:14px;border:1px solid var(--line);background:#fcfcfe;overflow:hidden;position:relative}
+  svg{width:100%;height:100%;display:block}
+  .legend{display:flex;flex-wrap:wrap;gap:14px 18px;margin-top:12px;font-size:11px;color:#5d6371}
+  .legend-item{display:flex;align-items:center;gap:7px}
+  .swatch{width:22px;height:4px;border-radius:999px;background:var(--accent)}
+  .swatch.main{height:2px;background:var(--navy)}
+  .swatch.sec{height:0;border-top:2px dashed var(--secondary);background:transparent}
+  .swatch.free{height:0;border-top:2px dashed var(--warn);background:transparent}
+
+  .results{padding:22px}
+  .results-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+  .results-top h2{font-size:17px;margin:0;font-weight:850}
+  .area-big{font-size:14px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:8px 10px;border-radius:10px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff;min-height:150px}
+  .card .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:820}
+  .card .value{font-size:27px;font-weight:900;letter-spacing:-.7px;margin:8px 0 2px}
+  .card .unitline{font-size:12px;color:#555b69;font-weight:700}
+  .card .sub{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.45}
+  .result-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12px}
+  .result-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:9px 10px;border-bottom:1px solid var(--line)}
+  .result-table td{padding:11px 10px;border-bottom:1px solid #eceef3;vertical-align:top}
+  .result-table tr:last-child td{border-bottom:0}
+  .result-table td:nth-child(n+2),.result-table th:nth-child(n+2){text-align:right}
+  .warning{margin-top:15px;border:1px solid #fed7aa;background:var(--warn-soft);border-radius:12px;padding:12px 13px;font-size:11px;line-height:1.5;color:#8a4b08;display:none}
+  .warning.show{display:block}
+  .assumption{margin-top:14px;border-top:1px solid var(--line);padding-top:13px;font-size:11px;color:var(--muted);line-height:1.55}
+  .assumption strong{color:#4e5361}
+  .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .mini-stat{background:#f8f8fb;border-radius:10px;padding:10px;border:1px solid #eceef4}
+  .mini-stat span{display:block;font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:780;letter-spacing:.4px}
+  .mini-stat b{display:block;font-size:14px;margin-top:3px}
+
+  .toast{position:fixed;right:24px;bottom:24px;background:#202431;color:#fff;padding:11px 14px;border-radius:11px;font-size:12px;font-weight:750;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s ease;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  @media(max-width:1050px){
+    .grid{grid-template-columns:1fr}
+    .cards{grid-template-columns:repeat(2,1fr)}
+  }
+
+  /* Versão mobile — o mesmo HTML se adapta automaticamente */
+  @media(max-width:700px){
+    html{scroll-behavior:smooth}
+    body{
+      overflow-x:hidden;
+      -webkit-text-size-adjust:100%;
+      padding-bottom:env(safe-area-inset-bottom);
+    }
+    .app{
+      width:100%;
+      max-width:none;
+      padding:12px;
+      padding-left:max(12px,env(safe-area-inset-left));
+      padding-right:max(12px,env(safe-area-inset-right));
+    }
+    .topbar{
+      align-items:stretch;
+      flex-direction:column;
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{gap:10px;align-items:center}
+    .logo{
+      width:42px;height:42px;border-radius:12px;
+      font-size:21px;flex:0 0 42px;
+    }
+    h1{font-size:22px;letter-spacing:-.35px}
+    .subtitle{font-size:12px;line-height:1.35}
+    .actions{
+      width:100%;
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:7px;
+    }
+    .actions button{
+      width:100%;
+      min-height:44px;
+      justify-content:center;
+      padding:9px 7px;
+      font-size:11px;
+      line-height:1.15;
+      white-space:normal;
+    }
+
+    .grid{gap:14px}
+    .workspace{gap:14px}
+    .panel{
+      border-radius:16px;
+      box-shadow:0 8px 24px rgba(31,35,48,.07);
+    }
+    .panel-pad,.results{padding:16px}
+    .panel-title{margin-bottom:14px}
+    .panel-title h2,.visual-head h2,.results-top h2{font-size:16px}
+    .section{padding:15px 0}
+    .section h3{margin-bottom:11px;font-size:12px}
+
+    .fields{grid-template-columns:1fr 1fr;gap:10px}
+    .field.full{grid-column:1/-1}
+    label{font-size:11px}
+    input,select{
+      height:46px;
+      min-height:46px;
+      font-size:16px;
+      border-radius:11px;
+    }
+    .hint{font-size:10.5px}
+
+    .support-wrap{
+      grid-template-columns:58px minmax(0,1fr) 58px;
+      grid-template-rows:48px 126px 48px;
+      gap:6px;
+      width:100%;
+      max-width:330px;
+    }
+    .side-toggle{
+      min-width:0;
+      min-height:44px;
+      padding:5px 3px;
+      font-size:9.5px;
+      border-radius:10px;
+    }
+    .side-toggle small{font-size:9px}
+    .support-center{padding:8px;border-radius:12px}
+    .support-center strong{font-size:12px}
+    .support-center span{font-size:9.5px;line-height:1.3}
+    .support-help{font-size:10px}
+
+    details{padding:0 12px}
+    summary{min-height:46px;padding:11px 0}
+    .advanced .fields{grid-template-columns:1fr 1fr}
+
+    .visual{padding:15px 12px 12px}
+    .visual-head{
+      align-items:flex-start;
+      gap:7px;
+      margin-bottom:10px;
+    }
+    .visual-head p{font-size:10.5px;line-height:1.35}
+    .dimension-pill{
+      padding:6px 8px;
+      font-size:10.5px;
+      flex:0 0 auto;
+    }
+    .svg-wrap{
+      height:290px;
+      border-radius:12px;
+    }
+    .legend{
+      gap:8px 12px;
+      margin-top:10px;
+      font-size:9.5px;
+      line-height:1.25;
+    }
+    .swatch{width:17px}
+
+    .results-top{
+      align-items:flex-start;
+      margin-bottom:12px;
+    }
+    .area-big{
+      font-size:11px;
+      padding:7px 8px;
+      white-space:nowrap;
+    }
+    .cards{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+    }
+    .card{
+      min-height:132px;
+      padding:13px 11px;
+      border-radius:13px;
+    }
+    .card .eyebrow{font-size:9px;letter-spacing:.45px}
+    .card .value{font-size:24px;margin:6px 0 1px}
+    .card .unitline{font-size:10px;line-height:1.25}
+    .card .sub{font-size:9.5px;margin-top:7px;line-height:1.35}
+
+    .result-table{
+      display:block;
+      width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+      font-size:10.5px;
+      white-space:nowrap;
+      margin-top:13px;
+      padding-bottom:3px;
+    }
+    .result-table th{font-size:9px}
+    .result-table th,.result-table td{padding:9px 8px}
+
+    .mini-grid{gap:6px}
+    .mini-stat{padding:8px 7px}
+    .mini-stat span{font-size:8px;line-height:1.25}
+    .mini-stat b{font-size:13px}
+    .warning,.assumption{font-size:10px}
+    .toast{
+      left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));
+      text-align:center;
+    }
+  }
+
+  @media(max-width:390px){
+    .app{padding:9px}
+    .actions{grid-template-columns:1fr 1fr}
+    .actions .btn-primary{grid-column:1/-1}
+    .fields{grid-template-columns:1fr}
+    .field.full{grid-column:auto}
+    .advanced .fields{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr 1fr}
+    .card{min-height:126px}
+    .support-wrap{
+      grid-template-columns:52px minmax(0,1fr) 52px;
+      grid-template-rows:46px 116px 46px;
+    }
+    .svg-wrap{height:255px}
+    .legend{display:grid;grid-template-columns:1fr 1fr}
+    .mini-grid{grid-template-columns:1fr}
+  }
+  @media print{
+    body{background:#fff}
+    .app{max-width:none;padding:0}
+    .actions,.support-help,.btn-primary,.btn-ghost{display:none!important}
+    .grid{grid-template-columns:360px 1fr;gap:12px}
+    .panel{box-shadow:none;break-inside:avoid}
+    .svg-wrap{height:360px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">▦</div>
+      <div>
+        <h1>Calculadora de Forros</h1>
+        <div class="subtitle">Forro removível retangular • placas, perfis e cantoneiras</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost" id="resetBtn">↺ Limpar</button>
+      <button class="btn-ghost" id="copyBtn">⧉ Copiar resumo</button>
+      <button class="btn-primary" id="printBtn">⌑ Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <aside class="panel panel-pad">
+      <div class="panel-title">
+        <h2>Dados do ambiente</h2>
+        <span class="tag">Retângulo</span>
+      </div>
+
+      <div class="section">
+        <h3>Dimensões</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="length">Comprimento</label>
+            <div class="input-wrap has-unit"><input id="length" type="number" min="0" step="0.01" value="11.25"><span class="unit">m</span></div>
+          </div>
+          <div class="field">
+            <label for="width">Largura</label>
+            <div class="input-wrap has-unit"><input id="width" type="number" min="0" step="0.01" value="7.50"><span class="unit">m</span></div>
+          </div>
+          <div class="field full">
+            <label for="direction">Direção das longarinas principais</label>
+            <select id="direction">
+              <option value="width" selected>Paralelas à largura</option>
+              <option value="length">Paralelas ao comprimento</option>
+            </select>
+            <div class="hint">No padrão 1250 × 625 mm, a principal corre no sentido do lado de 625 mm da placa.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Apoio nas paredes</h3>
+        <div class="support-wrap">
+          <button type="button" class="side-toggle side-top active" data-side="top">SUPERIOR<br><small id="topLen">11,25 m</small></button>
+          <button type="button" class="side-toggle side-left active" data-side="left">ESQUERDA&nbsp; <small id="leftLen">7,50 m</small></button>
+          <div class="support-center"><strong>Clique nos lados</strong><span>Ativo = apoiado na parede e recebe cantoneira</span></div>
+          <button type="button" class="side-toggle side-right active" data-side="right">DIREITA&nbsp; <small id="rightLen">7,50 m</small></button>
+          <button type="button" class="side-toggle side-bottom active" data-side="bottom">INFERIOR<br><small id="bottomLen">11,25 m</small></button>
+        </div>
+        <div class="support-help"><b>Lilás</b> = com cantoneira • cinza = sem cantoneira</div>
+      </div>
+
+      <div class="section">
+        <h3>Perdas e embalagem</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="waste">Perda de compra</label>
+            <div class="input-wrap has-unit"><input id="waste" type="number" min="0" max="50" step="0.5" value="5"><span class="unit">%</span></div>
+          </div>
+          <div class="field">
+            <label for="boxQty">Placas por caixa</label>
+            <div class="input-wrap"><input id="boxQty" type="number" value="12" readonly aria-readonly="true" title="Quantidade fixa: 12 placas por caixa" style="background:#f3f4f7;color:#5b6070;font-weight:800;cursor:not-allowed"></div>
+          </div>
+        </div>
+      </div>
+
+      <details>
+        <summary>Configurações do sistema</summary>
+        <div class="advanced">
+          <div class="fields">
+            <div class="field">
+              <label for="plateLong">Placa — lado maior</label>
+              <div class="input-wrap has-unit"><input id="plateLong" type="number" min="0.01" step="0.001" value="1.25"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="plateShort">Placa — lado menor</label>
+              <div class="input-wrap has-unit"><input id="plateShort" type="number" min="0.01" step="0.001" value="0.625"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="mainSpacing">Espaçamento entre principais</label>
+              <div class="input-wrap has-unit"><input id="mainSpacing" type="number" min="0.01" step="0.001" value="1.25"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="secSpacing">Espaçamento das secundárias</label>
+              <div class="input-wrap has-unit"><input id="secSpacing" type="number" min="0.01" step="0.001" value="0.625"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="mainStock">Barra principal</label>
+              <div class="input-wrap has-unit"><input id="mainStock" type="number" min="0.01" step="0.001" value="3.75"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="secStock">Barra secundária</label>
+              <div class="input-wrap has-unit"><input id="secStock" type="number" min="0.01" step="0.001" value="1.25"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label for="angleStock">Barra de cantoneira</label>
+              <div class="input-wrap has-unit"><input id="angleStock" type="number" min="0.01" step="0.001" value="3.00"><span class="unit">m</span></div>
+            </div>
+            <div class="field">
+              <label>&nbsp;</label>
+              <button type="button" class="btn-ghost" id="presetBtn" style="height:44px;justify-content:center">Padrão 1250 × 625</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </aside>
+
+    <main class="workspace">
+      <section class="panel visual">
+        <div class="visual-head">
+          <div>
+            <h2>Planta esquemática</h2>
+            <p>A malha se ajusta automaticamente às dimensões do retângulo.</p>
+          </div>
+          <div class="dimension-pill" id="dimPill">11,25 × 7,50 m</div>
+        </div>
+        <div class="svg-wrap"><svg id="plan" viewBox="0 0 900 520" aria-label="Planta esquemática do forro"></svg></div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch"></span>Cantoneira em parede</div>
+          <div class="legend-item"><span class="swatch main"></span>Longarina principal</div>
+          <div class="legend-item"><span class="swatch sec"></span>Secundária / intermediário</div>
+          <div class="legend-item"><span class="swatch free"></span>Lado sem cantoneira</div>
+        </div>
+      </section>
+
+      <section class="panel results">
+        <div class="results-top">
+          <h2>Quantitativos estimados</h2>
+          <div class="area-big" id="areaBadge">Área: 84,38 m²</div>
+        </div>
+        <div class="cards">
+          <div class="card">
+            <div class="eyebrow">Placas</div>
+            <div class="value" id="platesVal">114</div>
+            <div class="unitline">unidades para compra</div>
+            <div class="sub" id="platesSub">10 caixas de 12 • inclui 5% de perda</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Longarina principal</div>
+            <div class="value" id="mainVal">—</div>
+            <div class="unitline" id="mainUnit">barras comerciais</div>
+            <div class="sub" id="mainSub">—</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Secundária</div>
+            <div class="value" id="secVal">—</div>
+            <div class="unitline" id="secUnit">barras comerciais</div>
+            <div class="sub" id="secSub">—</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Cantoneira</div>
+            <div class="value" id="angleVal">—</div>
+            <div class="unitline">barras comerciais</div>
+            <div class="sub" id="angleSub">—</div>
+          </div>
+        </div>
+
+        <table class="result-table">
+          <thead><tr><th>Item</th><th>Metragem líquida</th><th>Com perda</th><th>Compra</th></tr></thead>
+          <tbody>
+            <tr><td>Longarina principal</td><td id="mainNet">—</td><td id="mainGross">—</td><td id="mainBuy">—</td></tr>
+            <tr><td>Longarina secundária / intermediário</td><td id="secNet">—</td><td id="secGross">—</td><td id="secBuy">—</td></tr>
+            <tr><td>Cantoneira perimetral</td><td id="angleNet">—</td><td id="angleGross">—</td><td id="angleBuy">—</td></tr>
+          </tbody>
+        </table>
+
+        <div class="mini-grid">
+          <div class="mini-stat"><span>Módulos na malha</span><b id="gridModules">—</b></div>
+          <div class="mini-stat"><span>Linhas principais internas</span><b id="mainLines">—</b></div>
+          <div class="mini-stat"><span>Fileiras de secundárias</span><b id="secRows">—</b></div>
+        </div>
+
+        <div class="warning" id="warning">Há lado(s) sem apoio em parede e, portanto, sem cantoneira. A borda livre precisa ter uma solução própria de arremate/suspensão definida para o sistema adotado; esta calculadora apenas exclui a cantoneira nesses lados.</div>
+        <div class="assumption"><strong>Critério usado:</strong> o cálculo considera malha ortogonal. As principais são espaçadas conforme o campo “espaçamento entre principais”, e as secundárias aparecem a cada “espaçamento das secundárias”. O quantitativo de placas para compra é calculado pela área do forro ÷ área da placa, acrescido da perda definida. Já a malha mostra o número de módulos geométricos, que pode ser maior por causa dos recortes de borda.</div>
+      </section>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast">Resumo copiado.</div>
+
+<script>
+const ids = ["length","width","direction","waste","plateLong","plateShort","mainSpacing","secSpacing","mainStock","secStock","angleStock"];
+const $ = id => document.getElementById(id);
+const sides = {top:true,right:true,bottom:true,left:true};
+
+const num = id => Math.max(0, parseFloat($(id).value) || 0);
+const fmt = (n, d=2) => n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtFlex = n => n.toLocaleString('pt-BR',{maximumFractionDigits:2});
+const ceilSafe = n => Number.isFinite(n) && n > 0 ? Math.ceil(n - 1e-10) : 0;
+
+function getData(){
+  const L=num('length'), W=num('width');
+  const waste=num('waste')/100;
+  const plateLong=num('plateLong'), plateShort=num('plateShort');
+  const mainSpacing=num('mainSpacing'), secSpacing=num('secSpacing');
+  const mainStock=num('mainStock'), secStock=num('secStock'), angleStock=num('angleStock');
+  const boxQty=12; // embalagem fixa: 12 placas por caixa
+  const dir=$('direction').value;
+  const along = dir==='length' ? L : W;
+  const across = dir==='length' ? W : L;
+  const area=L*W;
+
+  const modulesAlong = secSpacing>0 ? ceilSafe(along/secSpacing) : 0;
+  const modulesAcross = mainSpacing>0 ? ceilSafe(across/mainSpacing) : 0;
+  const gridModules=modulesAlong*modulesAcross;
+
+  const plateArea=plateLong*plateShort;
+  const platesNet=plateArea>0 ? area/plateArea : 0;
+  const platesBuy=ceilSafe(platesNet*(1+waste));
+  const boxes=ceilSafe(platesBuy/boxQty);
+
+  const mainLines=Math.max(0,modulesAcross-1);
+  const mainNet=mainLines*along;
+  const mainGross=mainNet*(1+waste);
+  const mainBars=mainStock>0 ? ceilSafe(mainGross/mainStock) : 0;
+
+  const secRows=Math.max(0,modulesAlong-1);
+  const secNet=secRows*across;
+  const secGross=secNet*(1+waste);
+  const secBars=secStock>0 ? ceilSafe(secGross/secStock) : 0;
+  const secPieces=secRows*modulesAcross;
+
+  const supportedLen=(sides.top?L:0)+(sides.bottom?L:0)+(sides.left?W:0)+(sides.right?W:0);
+  const angleNet=supportedLen;
+  const angleGross=angleNet*(1+waste);
+  const angleBars=angleStock>0 ? ceilSafe(angleGross/angleStock) : 0;
+  return {L,W,waste,plateLong,plateShort,mainSpacing,secSpacing,mainStock,secStock,angleStock,boxQty,dir,along,across,area,modulesAlong,modulesAcross,gridModules,plateArea,platesNet,platesBuy,boxes,mainLines,mainNet,mainGross,mainBars,secRows,secNet,secGross,secBars,secPieces,angleNet,angleGross,angleBars};
+}
+
+function renderResults(d){
+  $('areaBadge').textContent=`Área: ${fmt(d.area)} m²`;
+  $('dimPill').textContent=`${fmt(d.L)} × ${fmt(d.W)} m`;
+  $('platesVal').textContent=d.platesBuy;
+  $('platesSub').textContent=`${d.boxes} caixa${d.boxes===1?'':'s'} de ${d.boxQty} • inclui ${fmtFlex(d.waste*100)}% de perda`;
+
+  $('mainVal').textContent=d.mainBars;
+  $('mainSub').textContent=`${fmt(d.mainNet)} m líquidos • ${d.mainLines} linha${d.mainLines===1?'':'s'} interna${d.mainLines===1?'':'s'}`;
+  $('secVal').textContent=d.secBars;
+  $('secSub').textContent=`${fmt(d.secNet)} m líquidos • ${d.secPieces} peça${d.secPieces===1?'':'s'} de malha`;
+  $('angleVal').textContent=d.angleBars;
+  $('angleSub').textContent=`${fmt(d.angleNet)} m em lados apoiados`;
+
+  $('mainNet').textContent=`${fmt(d.mainNet)} m`;
+  $('mainGross').textContent=`${fmt(d.mainGross)} m`;
+  $('mainBuy').textContent=`${d.mainBars} barra${d.mainBars===1?'':'s'} × ${fmtFlex(d.mainStock)} m`;
+  $('secNet').textContent=`${fmt(d.secNet)} m`;
+  $('secGross').textContent=`${fmt(d.secGross)} m`;
+  $('secBuy').textContent=`${d.secBars} barra${d.secBars===1?'':'s'} × ${fmtFlex(d.secStock)} m`;
+  $('angleNet').textContent=`${fmt(d.angleNet)} m`;
+  $('angleGross').textContent=`${fmt(d.angleGross)} m`;
+  $('angleBuy').textContent=`${d.angleBars} barra${d.angleBars===1?'':'s'} × ${fmtFlex(d.angleStock)} m`;
+
+  $('gridModules').textContent=d.gridModules;
+  $('mainLines').textContent=d.mainLines;
+  $('secRows').textContent=d.secRows;
+  $('warning').classList.toggle('show', Object.values(sides).some(v=>!v));
+
+  $('topLen').textContent=`${fmt(d.L)} m`;
+  $('bottomLen').textContent=`${fmt(d.L)} m`;
+  $('leftLen').textContent=`${fmt(d.W)} m`;
+  $('rightLen').textContent=`${fmt(d.W)} m`;
+}
+
+function svgEl(name, attrs={}){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  return e;
+}
+function addText(svg,x,y,text,attrs={}){
+  const t=svgEl('text',{x,y,'font-size':attrs.size||14,'font-weight':attrs.weight||700,fill:attrs.fill||'#4f5564','text-anchor':attrs.anchor||'middle'});
+  t.textContent=text; svg.appendChild(t); return t;
+}
+function renderPlan(d){
+  const svg=$('plan'); svg.innerHTML='';
+  if(d.L<=0||d.W<=0){ addText(svg,450,260,'Informe comprimento e largura.',{size:20}); return; }
+  const pad=78, maxW=740, maxH=360;
+  const scale=Math.min(maxW/d.L,maxH/d.W);
+  const rw=d.L*scale, rh=d.W*scale;
+  const x=(900-rw)/2, y=(520-rh)/2+4;
+
+  // Background shadow
+  svg.appendChild(svgEl('rect',{x:x+5,y:y+7,width:rw,height:rh,rx:3,fill:'rgba(36,42,59,.07)'}));
+  svg.appendChild(svgEl('rect',{x,y,width:rw,height:rh,rx:2,fill:'#ffffff',stroke:'#d9dde7','stroke-width':1.2}));
+
+  const dir=d.dir;
+  // Draw tile-module guide lines: main runners and secondary rows
+  const mainColor='#26324b', secColor='#8991a3';
+  if(dir==='length'){
+    // mains parallel to horizontal length: positions across width
+    for(let p=d.mainSpacing;p<d.W-1e-9;p+=d.mainSpacing){
+      const yy=y+p*scale;
+      svg.appendChild(svgEl('line',{x1:x,y1:yy,x2:x+rw,y2:yy,stroke:mainColor,'stroke-width':2}));
+    }
+    for(let p=d.secSpacing;p<d.L-1e-9;p+=d.secSpacing){
+      const xx=x+p*scale;
+      svg.appendChild(svgEl('line',{x1:xx,y1:y,x2:xx,y2:y+rh,stroke:secColor,'stroke-width':1.2,'stroke-dasharray':'5 4'}));
+    }
+  }else{
+    // mains parallel to vertical width: positions across length
+    for(let p=d.mainSpacing;p<d.L-1e-9;p+=d.mainSpacing){
+      const xx=x+p*scale;
+      svg.appendChild(svgEl('line',{x1:xx,y1:y,x2:xx,y2:y+rh,stroke:mainColor,'stroke-width':2}));
+    }
+    for(let p=d.secSpacing;p<d.W-1e-9;p+=d.secSpacing){
+      const yy=y+p*scale;
+      svg.appendChild(svgEl('line',{x1:x,y1:yy,x2:x+rw,y2:yy,stroke:secColor,'stroke-width':1.2,'stroke-dasharray':'5 4'}));
+    }
+  }
+
+  const drawSide=(side,active)=>{
+    const stroke=active?'#7158e2':'#d97706';
+    const dash=active?'':'7 5';
+    const sw=active?6:3;
+    let a;
+    if(side==='top') a={x1:x,y1:y,x2:x+rw,y2:y};
+    if(side==='bottom') a={x1:x,y1:y+rh,x2:x+rw,y2:y+rh};
+    if(side==='left') a={x1:x,y1:y,x2:x,y2:y+rh};
+    if(side==='right') a={x1:x+rw,y1:y,x2:x+rw,y2:y+rh};
+    svg.appendChild(svgEl('line',{...a,stroke,'stroke-width':sw,'stroke-linecap':'round','stroke-dasharray':dash}));
+  };
+  ['top','right','bottom','left'].forEach(s=>drawSide(s,sides[s]));
+
+  // dimension lines
+  const dim='#626878';
+  svg.appendChild(svgEl('line',{x1:x,y1:y+rh+30,x2:x+rw,y2:y+rh+30,stroke:dim,'stroke-width':1}));
+  svg.appendChild(svgEl('line',{x1:x,y1:y+rh+23,x2:x,y2:y+rh+37,stroke:dim,'stroke-width':1}));
+  svg.appendChild(svgEl('line',{x1:x+rw,y1:y+rh+23,x2:x+rw,y2:y+rh+37,stroke:dim,'stroke-width':1}));
+  addText(svg,x+rw/2,y+rh+52,`${fmt(d.L)} m`,{size:13,fill:dim});
+
+  svg.appendChild(svgEl('line',{x1:x-30,y1:y,x2:x-30,y2:y+rh,stroke:dim,'stroke-width':1}));
+  svg.appendChild(svgEl('line',{x1:x-37,y1:y,x2:x-23,y2:y,stroke:dim,'stroke-width':1}));
+  svg.appendChild(svgEl('line',{x1:x-37,y1:y+rh,x2:x-23,y2:y+rh,stroke:dim,'stroke-width':1}));
+  const vt=addText(svg,x-48,y+rh/2,`${fmt(d.W)} m`,{size:13,fill:dim});
+  vt.setAttribute('transform',`rotate(-90 ${x-48} ${y+rh/2})`);
+
+  // direction arrow
+  const cx=x+rw/2, cy=y+rh/2;
+  const g=svgEl('g',{'opacity':'0.95'});
+  const arrowLen=Math.min(120,(dir==='length'?rw:rh)*.28);
+  let x1=cx,y1=cy,x2=cx,y2=cy;
+  if(dir==='length'){x1=cx-arrowLen/2;x2=cx+arrowLen/2;} else {y1=cy+arrowLen/2;y2=cy-arrowLen/2;}
+  g.appendChild(svgEl('line',{x1,y1,x2,y2,stroke:'#7158e2','stroke-width':3,'stroke-linecap':'round'}));
+  if(dir==='length') g.appendChild(svgEl('polygon',{points:`${x2},${y2} ${x2-11},${y2-6} ${x2-11},${y2+6}`,fill:'#7158e2'}));
+  else g.appendChild(svgEl('polygon',{points:`${x2},${y2} ${x2-6},${y2+11} ${x2+6},${y2+11}`,fill:'#7158e2'}));
+  svg.appendChild(g);
+  const label=addText(svg,cx,cy+(dir==='length'? -14:0),'PRINCIPAIS',{size:11,fill:'#7158e2',weight:900});
+  if(dir==='width') label.setAttribute('transform',`rotate(-90 ${cx} ${cy})`);
+
+  // side status labels
+  const lab=(tx,ty,name,on,anchor='middle')=>addText(svg,tx,ty,`${name}: ${on?'CANTONEIRA':'SEM CANTONEIRA'}`,{size:10,fill:on?'#7158e2':'#b26108',weight:800,anchor});
+  lab(x+rw/2,y-17,'SUPERIOR',sides.top);
+  lab(x+rw/2,y+rh+82,'INFERIOR',sides.bottom);
+  const lt=lab(x-63,y+rh/2,'ESQUERDA',sides.left); lt.setAttribute('transform',`rotate(-90 ${x-63} ${y+rh/2})`);
+  const rt=lab(x+rw+63,y+rh/2,'DIREITA',sides.right); rt.setAttribute('transform',`rotate(90 ${x+rw+63} ${y+rh/2})`);
+}
+
+function saveState(){
+  const state={}; ids.forEach(id=>state[id]=$(id).value); state.sides=sides;
+  localStorage.setItem('forroCalcState',JSON.stringify(state));
+}
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem('forroCalcState')||'null');
+    if(!s)return;
+    ids.forEach(id=>{if(s[id]!==undefined)$(id).value=s[id]});
+    if(s.sides)Object.assign(sides,s.sides);
+  }catch(e){}
+}
+function syncSideButtons(){
+  document.querySelectorAll('.side-toggle').forEach(b=>b.classList.toggle('active',!!sides[b.dataset.side]));
+}
+function update(){
+  const d=getData(); renderResults(d); renderPlan(d); saveState();
+}
+
+ids.forEach(id=>$(id).addEventListener('input',update));
+document.querySelectorAll('.side-toggle').forEach(btn=>btn.addEventListener('click',()=>{sides[btn.dataset.side]=!sides[btn.dataset.side];syncSideButtons();update();}));
+
+$('presetBtn').addEventListener('click',()=>{
+  $('plateLong').value='1.25';$('plateShort').value='0.625';$('mainSpacing').value='1.25';$('secSpacing').value='0.625';$('mainStock').value='3.75';$('secStock').value='1.25';$('angleStock').value='3';update();
+});
+$('resetBtn').addEventListener('click',()=>{
+  localStorage.removeItem('forroCalcState');
+  $('length').value='11.25';$('width').value='7.50';$('direction').value='width';$('waste').value='5';$('boxQty').value='12';
+  $('plateLong').value='1.25';$('plateShort').value='0.625';$('mainSpacing').value='1.25';$('secSpacing').value='0.625';$('mainStock').value='3.75';$('secStock').value='1.25';$('angleStock').value='3';
+  Object.keys(sides).forEach(k=>sides[k]=true);syncSideButtons();update();
+});
+$('printBtn').addEventListener('click',()=>window.print());
+$('copyBtn').addEventListener('click',async()=>{
+  const d=getData();
+  const sideNames=[]; if(sides.top)sideNames.push('superior'); if(sides.right)sideNames.push('direita'); if(sides.bottom)sideNames.push('inferior'); if(sides.left)sideNames.push('esquerda');
+  const txt=`CALCULADORA DE FORROS\nAmbiente: ${fmt(d.L)} x ${fmt(d.W)} m = ${fmt(d.area)} m²\nCantoneira nos lados: ${sideNames.length?sideNames.join(', '):'nenhum'}\n\nPlacas: ${d.platesBuy} un. (${d.boxes} caixa(s) de ${d.boxQty})\nLongarina principal: ${fmt(d.mainNet)} m líquidos | ${d.mainBars} barra(s) de ${fmtFlex(d.mainStock)} m\nLongarina secundária/intermediário: ${fmt(d.secNet)} m líquidos | ${d.secBars} barra(s) de ${fmtFlex(d.secStock)} m\nCantoneira: ${fmt(d.angleNet)} m líquidos | ${d.angleBars} barra(s) de ${fmtFlex(d.angleStock)} m\nPerda aplicada: ${fmtFlex(d.waste*100)}%`;
+  try{await navigator.clipboard.writeText(txt);const t=$('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)}catch(e){alert(txt)}
+});
+
+let resizeTimer;
+window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>renderPlan(getData()),120)});
+
+loadState();$('boxQty').value='12';syncSideButtons();update();
+</script>
+</body>
+</html>
