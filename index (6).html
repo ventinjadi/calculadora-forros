@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7158e2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Calculadora de Pisos</title>
+
+<style>
+:root{
+  --bg:#f5f6fb;
+  --panel:#fff;
+  --ink:#171923;
+  --muted:#6d7280;
+  --line:#dfe2ea;
+  --accent:#7158e2;
+  --accent2:#a997ff;
+  --soft:#f0edff;
+  --navy:#26324b;
+  --warn:#d97706;
+  --warnSoft:#fff7ed;
+  --danger:#c83c3c;
+  --dangerSoft:#fff0f0;
+  --good:#16845b;
+  --goodSoft:#edf9f4;
+  --shadow:0 16px 40px rgba(31,35,48,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 0%,rgba(113,88,226,.10),transparent 30%),
+    radial-gradient(circle at 95% 15%,rgba(169,151,255,.10),transparent 28%),
+    var(--bg);
+  min-height:100vh;
+}
+button,input,select{font:inherit}
+.app{max-width:1480px;margin:0 auto;padding:28px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--accent),#4c37bd);color:#fff;
+  font-weight:900;font-size:24px;box-shadow:0 10px 24px rgba(113,88,226,.28)
+}
+h1{font-size:28px;line-height:1.1;margin:0 0 4px;font-weight:850;letter-spacing:-.5px}
+.subtitle{color:var(--muted);font-size:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button{
+  border:0;border-radius:12px;padding:11px 14px;font-weight:750;cursor:pointer;
+  transition:.18s ease;display:inline-flex;align-items:center;justify-content:center;gap:8px
+}
+.btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-ghost:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(31,35,48,.08)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#5e48c6;transform:translateY(-1px)}
+.grid{display:grid;grid-template-columns:minmax(360px,430px) 1fr;gap:22px;align-items:start}
+.panel{background:var(--panel);border:1px solid rgba(223,226,234,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
+.panel-pad{padding:22px}
+.panel-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.panel-title h2,.visual-head h2,.results-top h2{font-size:17px;margin:0;font-weight:850}
+.tag{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:6px 8px;border-radius:999px;background:var(--soft);color:var(--accent)}
+.section{padding:18px 0;border-top:1px solid var(--line)}
+.section:first-of-type{padding-top:0;border-top:0}
+.section h3{font-size:13px;text-transform:uppercase;letter-spacing:.7px;margin:0 0 13px;color:#4a5060}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:12px;font-weight:760;color:#515665}
+.input-wrap{position:relative}
+input,select{
+  width:100%;height:44px;border:1px solid var(--line);background:#fff;border-radius:11px;
+  padding:0 12px;color:var(--ink);outline:none;transition:.15s ease
+}
+input:focus,select:focus{border-color:var(--accent2);box-shadow:0 0 0 3px var(--soft)}
+.unit{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none}
+.has-unit input{padding-right:48px}
+.hint{font-size:11px;line-height:1.45;color:var(--muted);margin-top:4px}
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:#fafaff
+}
+.toggle-row .txt strong{display:block;font-size:12px}
+.toggle-row .txt span{display:block;color:var(--muted);font-size:10.5px;margin-top:3px;line-height:1.35}
+.switch{position:relative;width:46px;height:26px;flex:0 0 46px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d6d9e2;border-radius:999px;cursor:pointer;transition:.2s}
+.slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.18);transition:.2s}
+.switch input:checked + .slider{background:var(--accent)}
+.switch input:checked + .slider:before{transform:translateX(20px)}
+details{border:1px solid var(--line);border-radius:13px;padding:0 14px;background:#fbfbfd}
+summary{cursor:pointer;list-style:none;padding:13px 0;font-size:13px;font-weight:820;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"＋";color:var(--accent);font-size:18px;font-weight:600}
+details[open] summary:after{content:"−"}
+.advanced{padding:2px 0 14px}
+.workspace{display:flex;flex-direction:column;gap:22px}
+.statusbar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.status{
+  border:1px solid var(--line);border-radius:14px;padding:13px 14px;background:#fff;
+  display:flex;align-items:center;gap:10px
+}
+.status .icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#f5f4ff;color:var(--accent);font-size:18px;flex:0 0 34px}
+.status strong{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+.status span{display:block;font-size:11px;color:var(--muted);margin-top:2px;line-height:1.25}
+.status.danger{border-color:#ffc4c4;background:var(--dangerSoft)}
+.status.danger .icon{background:#ffe0e0;color:var(--danger)}
+.status.danger strong{color:var(--danger)}
+.status.warn{border-color:#fed7aa;background:var(--warnSoft)}
+.status.warn .icon{background:#ffedd5;color:var(--warn)}
+.status.good{border-color:#bee7d5;background:var(--goodSoft)}
+.status.good .icon{background:#d9f4e7;color:var(--good)}
+.visual{padding:20px 22px 18px;overflow:hidden}
+.visual-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px}
+.visual-head p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.dimension-pill{background:#f7f7fa;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:12px;font-weight:750;color:#4d5260;white-space:nowrap}
+.svg-wrap{height:390px;width:100%;border-radius:14px;border:1px solid var(--line);background:#fcfcfe;overflow:hidden;position:relative}
+svg{width:100%;height:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px 18px;margin-top:12px;font-size:11px;color:#5d6371}
+.legend-item{display:flex;align-items:center;gap:7px}
+.swatch{width:22px;height:4px;border-radius:999px;background:var(--accent)}
+.swatch.joint{height:0;border-top:2px solid #b7bdc9;background:transparent}
+.swatch.cut{height:0;border-top:2px dashed var(--warn);background:transparent}
+.results{padding:22px}
+.results-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.area-big{font-size:14px;font-weight:800;color:var(--accent);background:var(--soft);padding:8px 10px;border-radius:10px}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{border:1px solid var(--line);border-radius:15px;padding:16px;background:#fff;min-height:150px}
+.card .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:820}
+.card .value{font-size:27px;font-weight:900;letter-spacing:-.7px;margin:8px 0 2px}
+.card .unitline{font-size:12px;color:#555b69;font-weight:700}
+.card .sub{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.45}
+.card.alert{border-color:#ffbcbc;background:linear-gradient(180deg,#fff,#fff5f5)}
+.card.alert .eyebrow,.card.alert .value{color:var(--danger)}
+.result-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12px}
+.result-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:9px 10px;border-bottom:1px solid var(--line)}
+.result-table td{padding:11px 10px;border-bottom:1px solid #eceef3;vertical-align:top}
+.result-table tr:last-child td{border-bottom:0}
+.result-table td:nth-child(n+2),.result-table th:nth-child(n+2){text-align:right}
+.notice{margin-top:15px;border-radius:12px;padding:12px 13px;font-size:11px;line-height:1.5;display:none}
+.notice.show{display:block}
+.notice.danger{border:1px solid #ffc4c4;background:var(--dangerSoft);color:#8b2626}
+.notice.warn{border:1px solid #fed7aa;background:var(--warnSoft);color:#8a4b08}
+.notice.good{border:1px solid #bee7d5;background:var(--goodSoft);color:#146747}
+.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.mini-stat{background:#f8f8fb;border-radius:10px;padding:10px;border:1px solid #eceef4}
+.mini-stat span{display:block;font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:780;letter-spacing:.35px;line-height:1.25}
+.mini-stat b{display:block;font-size:14px;margin-top:4px}
+.assumption{margin-top:14px;border-top:1px solid var(--line);padding-top:13px;font-size:11px;color:var(--muted);line-height:1.6}
+.assumption strong{color:#4e5361}
+
+.joint-guide{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:16px
+}
+.joint-box{
+  border:1px solid var(--line);border-radius:13px;padding:12px;background:#fbfbfd
+}
+.joint-box .jname{
+  font-size:10px;text-transform:uppercase;letter-spacing:.45px;font-weight:850;color:#555b69
+}
+.joint-box .jvalue{
+  font-size:18px;font-weight:900;margin:5px 0 3px;letter-spacing:-.3px
+}
+.joint-box .jdesc{
+  font-size:9.5px;color:var(--muted);line-height:1.4
+}
+.joint-box.movement{border-color:#fed7aa;background:#fffaf3}
+.joint-box.movement .jvalue{color:var(--warn)}
+.joint-box.structural{border-style:dashed}
+.swatch.move{height:0;border-top:3px solid var(--warn);background:transparent}
+.swatch.desolid{height:4px;background:var(--accent)}
+.swatch.structural{height:0;border-top:3px double #c83c3c;background:transparent}
+.toast{position:fixed;right:24px;bottom:24px;background:#202431;color:#fff;padding:11px 14px;border-radius:11px;font-size:12px;font-weight:750;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;box-shadow:0 12px 30px rgba(0,0,0,.15)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.optimizer{padding:18px 20px}
+.optimizer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:13px}
+.optimizer-head h2{font-size:17px;margin:0 0 4px;font-weight:850}
+.optimizer-head p{font-size:11px;color:var(--muted);margin:0;line-height:1.45}
+.optimizer-best{
+  display:grid;grid-template-columns:1.2fr .8fr .8fr .8fr auto;gap:10px;align-items:stretch
+}
+.opt-cell{
+  border:1px solid var(--line);border-radius:13px;padding:12px;background:#fbfbfd;min-width:0
+}
+.opt-cell .k{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.45px;color:var(--muted);font-weight:820}
+.opt-cell .v{display:block;font-size:18px;font-weight:900;margin-top:5px;letter-spacing:-.25px}
+.opt-cell .s{display:block;font-size:9.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+.opt-main{border-color:#cfc7ff;background:linear-gradient(180deg,#fbfaff,#f4f1ff)}
+.opt-main .v{color:var(--accent)}
+.opt-apply{align-self:stretch;min-height:70px;white-space:nowrap}
+.opt-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.opt-alt{border:1px solid var(--line);border-radius:11px;padding:9px 10px;background:#fff;font-size:10px;color:#5d6371;line-height:1.4}
+.opt-alt b{color:#303544}
+.opt-note{margin-top:10px;font-size:9.5px;color:var(--muted);line-height:1.45}
+.opt-zero{color:var(--good)}
+
+@media(max-width:1100px){
+  .grid{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  body{overflow-x:hidden;-webkit-text-size-adjust:100%;padding-bottom:env(safe-area-inset-bottom)}
+  .app{width:100%;max-width:none;padding:12px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .topbar{align-items:stretch;flex-direction:column;gap:12px;margin-bottom:14px}
+  .brand{gap:10px}.logo{width:42px;height:42px;border-radius:12px;font-size:21px;flex:0 0 42px}
+  h1{font-size:22px}.subtitle{font-size:12px;line-height:1.35}
+  .actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .actions button{width:100%;min-height:44px;padding:9px 7px;font-size:11px;line-height:1.15;white-space:normal}
+  .grid,.workspace{gap:14px}.panel{border-radius:16px;box-shadow:0 8px 24px rgba(31,35,48,.07)}
+  .panel-pad,.results{padding:16px}
+  .panel-title h2,.visual-head h2,.results-top h2{font-size:16px}
+  .section{padding:15px 0}.fields{grid-template-columns:1fr 1fr;gap:10px}
+  label{font-size:11px}input,select{height:46px;min-height:46px;font-size:16px;border-radius:11px}
+  .hint{font-size:10.5px}.statusbar{grid-template-columns:1fr}.status{padding:11px 12px}
+  .visual{padding:15px 12px 12px}.visual-head{gap:7px;margin-bottom:10px}.visual-head p{font-size:10.5px}
+  .dimension-pill{padding:6px 8px;font-size:10.5px}.svg-wrap{height:285px;border-radius:12px}
+  .legend{gap:8px 12px;margin-top:10px;font-size:9.5px}
+  .results-top{align-items:flex-start;margin-bottom:12px}.area-big{font-size:11px;padding:7px 8px;white-space:nowrap}
+  .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{min-height:132px;padding:13px 11px}
+  .card .eyebrow{font-size:9px}.card .value{font-size:23px}.card .unitline{font-size:10px}.card .sub{font-size:9.5px}
+  .result-table{display:block;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;font-size:10.5px;white-space:nowrap}
+  .result-table th{font-size:9px}.result-table th,.result-table td{padding:9px 8px}
+  .mini-grid{grid-template-columns:repeat(2,1fr);gap:6px}.joint-guide{grid-template-columns:repeat(2,1fr)}.mini-stat{padding:8px 7px}.mini-stat span{font-size:8px}.mini-stat b{font-size:13px}
+  .notice,.assumption{font-size:10px}.toast{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));text-align:center}
+  .optimizer{padding:15px 12px}.optimizer-head{flex-direction:column}.optimizer-best{grid-template-columns:repeat(2,1fr)}.opt-main{grid-column:1/-1}.opt-apply{grid-column:1/-1;min-height:44px}.opt-list{grid-template-columns:1fr}.opt-cell .v{font-size:16px}
+}
+@media(max-width:390px){
+  .app{padding:9px}.actions{grid-template-columns:1fr 1fr}.actions .btn-primary{grid-column:1/-1}
+  .fields{grid-template-columns:1fr}.field.full{grid-column:auto}.cards{grid-template-columns:1fr 1fr}
+  .svg-wrap{height:250px}.mini-grid{grid-template-columns:1fr 1fr}.joint-guide{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff}.app{max-width:none;padding:0}.actions{display:none!important}
+  .grid{grid-template-columns:360px 1fr;gap:12px}.panel{box-shadow:none;break-inside:avoid}.svg-wrap{height:330px}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">▦</div>
+      <div>
+        <h1>Calculadora de Pisos</h1>
+        <div class="subtitle">Pisos retangulares • revestimento, argamassa, rejunte, espaçadores e alertas técnicos</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost" id="resetBtn">↺ Limpar</button>
+      <button class="btn-ghost" id="copyBtn">⧉ Copiar resumo</button>
+      <button class="btn-primary" id="printBtn">⌑ Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <aside class="panel panel-pad">
+      <div class="panel-title">
+        <h2>Dados do piso</h2>
+        <span class="tag">Retângulo</span>
+      </div>
+
+      <div class="section">
+        <h3>Ambiente</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="length">Comprimento</label>
+            <div class="input-wrap has-unit"><input id="length" type="number" min="0" step="0.01" value="5"><span class="unit">m</span></div>
+          </div>
+          <div class="field">
+            <label for="width">Largura</label>
+            <div class="input-wrap has-unit"><input id="width" type="number" min="0" step="0.01" value="4"><span class="unit">m</span></div>
+          </div>
+          <div class="field full">
+            <label for="environment">Condição de uso</label>
+            <select id="environment">
+              <option value="dry" selected>Interior seco / sem insolação direta</option>
+              <option value="wet">Interior exposto à umidade e/ou insolação</option>
+              <option value="external">Área externa</option>
+            </select>
+            <div class="hint">A condição de uso altera o alerta de juntas de movimentação.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Peça de piso</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="tileL">Lado 1</label>
+            <div class="input-wrap has-unit"><input id="tileL" type="number" min="1" step="0.1" value="60"><span class="unit">cm</span></div>
+          </div>
+          <div class="field">
+            <label for="tileW">Lado 2</label>
+            <div class="input-wrap has-unit"><input id="tileW" type="number" min="1" step="0.1" value="60"><span class="unit">cm</span></div>
+          </div>
+          <div class="field">
+            <label for="thickness">Espessura da peça</label>
+            <div class="input-wrap has-unit"><input id="thickness" type="number" min="1" step="0.1" value="9"><span class="unit">mm</span></div>
+          </div>
+          <div class="field">
+            <label for="joint">Largura do rejunte</label>
+            <div class="input-wrap has-unit"><input id="joint" type="number" min="0.5" step="0.5" value="2"><span class="unit">mm</span></div>
+          </div>
+          <div class="field">
+            <label for="tileWaste">Perda de piso</label>
+            <div class="input-wrap has-unit"><input id="tileWaste" type="number" min="0" max="50" step="0.5" value="10"><span class="unit">%</span></div>
+          </div>
+          <div class="field">
+            <label for="boxQty">Peças por caixa</label>
+            <input id="boxQty" type="number" min="1" step="1" value="4">
+          </div>
+          <div class="field full">
+            <label for="orientation">Orientação da peça</label>
+            <select id="orientation">
+              <option value="longLength" selected>Lado 1 paralelo ao comprimento</option>
+              <option value="longWidth">Lado 1 paralelo à largura</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Insumos</h3>
+        <div class="fields">
+          <div class="field">
+            <label for="mortarBag">Saco de argamassa</label>
+            <div class="input-wrap has-unit"><input id="mortarBag" type="number" min="1" step="1" value="20"><span class="unit">kg</span></div>
+          </div>
+          <div class="field">
+            <label for="groutPack">Embalagem de rejunte</label>
+            <div class="input-wrap has-unit"><input id="groutPack" type="number" min="0.1" step="0.1" value="1"><span class="unit">kg</span></div>
+          </div>
+          <div class="field">
+            <label for="inputWaste">Perda dos insumos</label>
+            <div class="input-wrap has-unit"><input id="inputWaste" type="number" min="0" max="50" step="0.5" value="5"><span class="unit">%</span></div>
+          </div>
+          <div class="field">
+            <label for="spacerPerEdge">Espaçadores por junta</label>
+            <input id="spacerPerEdge" type="number" min="1" step="1" value="1">
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+        <div class="toggle-row">
+          <div class="txt">
+            <strong>Calcular sistema nivelador</strong>
+            <span>Clips descartáveis nas juntas entre peças. Cunhas são reutilizáveis.</span>
+          </div>
+          <label class="switch">
+            <input id="leveling" type="checkbox" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <details>
+        <summary>Configurações técnicas</summary>
+        <div class="advanced">
+          <div class="fields">
+            <div class="field">
+              <label for="doubleThreshold">Dupla colagem a partir de</label>
+              <div class="input-wrap has-unit"><input id="doubleThreshold" type="number" min="1" step="1" value="900"><span class="unit">cm²</span></div>
+            </div>
+            <div class="field">
+              <label for="groutDensity">Densidade do rejunte</label>
+              <div class="input-wrap has-unit"><input id="groutDensity" type="number" min="0.1" step="0.05" value="1.6"><span class="unit">g/cm³</span></div>
+            </div>
+            <div class="field">
+              <label for="clipsPerEdge">Clips niveladores por junta</label>
+              <input id="clipsPerEdge" type="number" min="1" step="1" value="2">
+            </div>
+            <div class="field">
+              <label for="manualMortar">Consumo manual de argamassa</label>
+              <div class="input-wrap has-unit"><input id="manualMortar" type="number" min="0" step="0.1" value="0"><span class="unit">kg/m²</span></div>
+              <div class="hint">Deixe 0 para usar o consumo automático conforme o tamanho da peça.</div>
+            </div>
+
+            <div class="field">
+              <label for="desolidWidth">Junta de dessolidarização</label>
+              <div class="input-wrap has-unit"><input id="desolidWidth" type="number" min="5" step="1" value="5"><span class="unit">mm</span></div>
+              <div class="hint">Adotado mínimo de 5 mm no perímetro e encontros.</div>
+            </div>
+
+            <div class="field">
+              <label for="movementWidth">Junta de movimentação</label>
+              <div class="input-wrap has-unit"><input id="movementWidth" type="number" min="5" step="1" value="8"><span class="unit">mm</span></div>
+              <div class="hint">Valor de orçamento; confirme a largura no projeto.</div>
+            </div>
+
+            <div class="field">
+              <label for="extraDesolid">Dessolidarização adicional</label>
+              <div class="input-wrap has-unit"><input id="extraDesolid" type="number" min="0" step="0.1" value="0"><span class="unit">m</span></div>
+              <div class="hint">Somatório em pilares, colunas, saliências e mudança de revestimento.</div>
+            </div>
+
+            <div class="field">
+              <label for="structuralLength">Juntas estruturais existentes</label>
+              <div class="input-wrap has-unit"><input id="structuralLength" type="number" min="0" step="0.1" value="0"><span class="unit">m</span></div>
+              <div class="hint">Informe o comprimento existente em projeto; não é criado automaticamente.</div>
+            </div>
+
+            <div class="field">
+              <label for="sealDepth">Profundidade útil do selante</label>
+              <div class="input-wrap has-unit"><input id="sealDepth" type="number" min="1" step="1" value="5"><span class="unit">mm</span></div>
+            </div>
+
+            <div class="field">
+              <label for="sealCartridge">Cartucho de selante</label>
+              <div class="input-wrap has-unit"><input id="sealCartridge" type="number" min="1" step="10" value="300"><span class="unit">mL</span></div>
+            </div>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="toggle-row">
+            <div class="txt">
+              <strong>Estimar selante e fundo de junta</strong>
+              <span>Aplica-se às juntas de movimentação e dessolidarização. Junta estrutural exige sistema conforme projeto.</span>
+            </div>
+            <label class="switch">
+              <input id="sealJoints" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="toggle-row">
+            <div class="txt">
+              <strong>Mostrar juntas internas na imagem</strong>
+              <span>Desative se quiser ver a paginação “normal”, sem a sobreposição das juntas de movimentação.</span>
+            </div>
+            <label class="switch">
+              <input id="showMovementOnPlan" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </details>
+    </aside>
+
+    <main class="workspace">
+
+      <section class="statusbar">
+        <div class="status" id="doubleStatus">
+          <div class="icon">↥</div>
+          <div><strong id="doubleTitle">COLAGEM</strong><span id="doubleText">—</span></div>
+        </div>
+        <div class="status" id="trowelStatus">
+          <div class="icon">▥</div>
+          <div><strong>DESEMPENADEIRA</strong><span id="trowelText">—</span></div>
+        </div>
+        <div class="status" id="jointStatus">
+          <div class="icon">↔</div>
+          <div><strong>JUNTAS DE MOVIMENTAÇÃO</strong><span id="jointText">—</span></div>
+        </div>
+      </section>
+
+      <section class="panel optimizer">
+        <div class="optimizer-head">
+          <div>
+            <h2>Otimização para reduzir recortes</h2>
+            <p>A calculadora compara formatos usuais, larguras de rejunte e as duas orientações. O critério principal é a menor quantidade de peças cortadas; em empate, prioriza cortes maiores e menor excesso geométrico.</p>
+          </div>
+          <span class="tag">Sugestão automática</span>
+        </div>
+
+        <div class="optimizer-best">
+          <div class="opt-cell opt-main">
+            <span class="k">Melhor formato sugerido</span>
+            <span class="v" id="optFormat">—</span>
+            <span class="s" id="optOrientation">—</span>
+          </div>
+          <div class="opt-cell">
+            <span class="k">Rejunte</span>
+            <span class="v" id="optJoint">—</span>
+            <span class="s">confirmar mínimo do fabricante</span>
+          </div>
+          <div class="opt-cell">
+            <span class="k">Peças cortadas</span>
+            <span class="v" id="optCuts">—</span>
+            <span class="s" id="optCutCompare">—</span>
+          </div>
+          <div class="opt-cell">
+            <span class="k">Malha prevista</span>
+            <span class="v" id="optGrid">—</span>
+            <span class="s" id="optRemainder">—</span>
+          </div>
+          <button class="btn-primary opt-apply" id="applySuggestionBtn">✓ Aplicar sugestão</button>
+        </div>
+
+        <div class="opt-list" id="optAlternatives"></div>
+
+        <div class="opt-note">
+          Formatos pesquisados: 20×20, 30×30, 40×40, 45×45, 50×50, 60×60, 75×75, 80×80, 90×90, 100×100, 120×120, 20×120, 30×60, 45×90, 60×120 e 80×160 cm; rejuntes de 1,5, 2, 3, 4 e 5 mm. A análise considera a junta de dessolidarização perimetral informada. A disponibilidade comercial e a junta mínima permitida devem ser confirmadas para o produto escolhido.
+        </div>
+      </section>
+
+      <section class="panel visual">
+        <div class="visual-head">
+          <div>
+            <h2>Planta esquemática</h2>
+            <p>Paginação ilustrativa em malha reta, considerando a junta informada.</p>
+          </div>
+          <div class="dimension-pill" id="dimPill">5,00 × 4,00 m</div>
+        </div>
+        <div class="svg-wrap">
+          <svg id="plan" viewBox="0 0 900 500" aria-label="Planta esquemática do piso"></svg>
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="swatch joint"></span> Junta de assentamento / rejunte</div>
+          <div class="legend-item"><span class="swatch desolid"></span> Dessolidarização perimetral</div>
+          <div class="legend-item"><span class="swatch move"></span> Junta de movimentação</div>
+          <div class="legend-item"><span class="swatch cut"></span> Faixa com recorte</div>
+        </div>
+      </section>
+
+      <section class="panel results">
+        <div class="results-top">
+          <h2>Quantitativos estimados</h2>
+          <div class="area-big" id="areaBadge">Área: 20,00 m²</div>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <div class="eyebrow">Piso</div>
+            <div class="value" id="tileVal">—</div>
+            <div class="unitline">peças para compra</div>
+            <div class="sub" id="tileSub">—</div>
+          </div>
+          <div class="card" id="mortarCard">
+            <div class="eyebrow">Argamassa colante</div>
+            <div class="value" id="mortarVal">—</div>
+            <div class="unitline">sacos para compra</div>
+            <div class="sub" id="mortarSub">—</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Rejunte</div>
+            <div class="value" id="groutVal">—</div>
+            <div class="unitline">embalagens para compra</div>
+            <div class="sub" id="groutSub">—</div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Espaçadores</div>
+            <div class="value" id="spacerVal">—</div>
+            <div class="unitline">unidades estimadas</div>
+            <div class="sub" id="spacerSub">—</div>
+          </div>
+        </div>
+
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Material / controle</th>
+              <th>Consumo</th>
+              <th>Com perda</th>
+              <th>Compra / previsão</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Revestimento de piso</td>
+              <td id="tileNet">—</td>
+              <td id="tileGross">—</td>
+              <td id="tileBuy">—</td>
+            </tr>
+            <tr>
+              <td>Argamassa colante</td>
+              <td id="mortarRate">—</td>
+              <td id="mortarGross">—</td>
+              <td id="mortarBuy">—</td>
+            </tr>
+            <tr>
+              <td>Rejunte</td>
+              <td id="groutRate">—</td>
+              <td id="groutGross">—</td>
+              <td id="groutBuy">—</td>
+            </tr>
+            <tr>
+              <td>Espaçadores de junta</td>
+              <td id="spacerNet">—</td>
+              <td id="spacerGross">—</td>
+              <td>unidades</td>
+            </tr>
+            <tr id="levelRow">
+              <td>Clips do sistema nivelador</td>
+              <td id="clipsNet">—</td>
+              <td id="clipsGross">—</td>
+              <td id="clipsBuy">—</td>
+            </tr>
+            <tr>
+              <td>Junta de dessolidarização (perímetro + adicionais)</td>
+              <td id="perimeterNet">—</td>
+              <td id="desolidWidthOut">—</td>
+              <td>material compressível / selante conforme detalhe</td>
+            </tr>
+            <tr>
+              <td>Junta de movimentação interna</td>
+              <td id="movementNet">—</td>
+              <td id="movementWidthOut">—</td>
+              <td id="movementLayout">—</td>
+            </tr>
+            <tr>
+              <td>Fundo de junta / limitador de profundidade</td>
+              <td id="backerNet">—</td>
+              <td id="backerGross">—</td>
+              <td id="backerBuy">—</td>
+            </tr>
+            <tr>
+              <td>Selante elastomérico flexível</td>
+              <td id="sealNet">—</td>
+              <td id="sealGross">—</td>
+              <td id="sealBuy">—</td>
+            </tr>
+            <tr>
+              <td>Junta estrutural existente</td>
+              <td id="structuralNet">—</td>
+              <td>respeitar largura e posição do projeto</td>
+              <td>perfil/sistema específico, não rejuntar rigidamente</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="joint-guide">
+          <div class="joint-box">
+            <div class="jname">1. Junta de assentamento</div>
+            <div class="jvalue" id="jointGuideAssent">—</div>
+            <div class="jdesc">É a junta entre as placas. Recebe o rejunte e acompanha a largura informada pelo usuário/fabricante.</div>
+          </div>
+          <div class="joint-box">
+            <div class="jname">2. Dessolidarização</div>
+            <div class="jvalue" id="jointGuideDesolid">—</div>
+            <div class="jdesc">Sempre no perímetro e também em pilares, colunas, vigas, saliências e encontros/mudanças de materiais.</div>
+          </div>
+          <div class="joint-box movement">
+            <div class="jname">3. Movimentação</div>
+            <div class="jvalue" id="jointGuideMovement">—</div>
+            <div class="jdesc">Subdivide o pano para aliviar tensões. Deve coincidir, sempre que possível, com a paginação e ser selada com sistema deformável.</div>
+          </div>
+          <div class="joint-box structural">
+            <div class="jname">4. Estrutural</div>
+            <div class="jvalue" id="jointGuideStructural">—</div>
+            <div class="jdesc">Se existir na estrutura, deve ser rigorosamente respeitada e continuar através das camadas do piso. Não pode ser “apagada” pelo revestimento.</div>
+          </div>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini-stat"><span>Área da peça</span><b id="tileAreaStat">—</b></div>
+          <div class="mini-stat"><span>Malha geométrica</span><b id="gridStat">—</b></div>
+          <div class="mini-stat"><span>Argamassa adotada</span><b id="mortarStat">—</b></div>
+          <div class="mini-stat"><span>Rejunte estimado</span><b id="groutStat">—</b></div>
+        </div>
+
+        <div class="notice danger" id="doubleNotice">
+          <strong>⚠ DUPLA COLAGEM:</strong> a peça atingiu o limite configurado. A calculadora passa a considerar o consumo de argamassa correspondente à dupla colagem. Verifique a ficha técnica da argamassa e do revestimento adotados.
+        </div>
+
+        <div class="notice warn" id="movementNotice"></div>
+
+        <div class="notice good" id="levelNotice">
+          <strong>Sistema nivelador:</strong> foram estimados clips descartáveis. As cunhas são reutilizáveis e devem ser adquiridas em quantidade compatível com a frente diária de assentamento; por isso não são tratadas como consumo integral da área.
+        </div>
+
+        <div class="assumption">
+          <strong>Critérios da calculadora:</strong>
+          a dupla colagem é sinalizada a partir de 900 cm² por padrão. O consumo automático de argamassa usa faixas aproximadas e pode ser substituído pelo consumo da ficha técnica do produto.
+          O rejunte é estimado por geometria da junta: <strong>((A+B)/(A×B)) × espessura × junta × densidade</strong>.
+          Para as juntas, a calculadora trata separadamente: <strong>assentamento</strong> (entre placas, preenchida com rejunte), <strong>dessolidarização</strong> (perímetro e encontros), <strong>movimentação</strong> (subdivisão interna do pano) e <strong>estrutural</strong> (existente na estrutura e obrigatoriamente respeitada).
+          A distribuição automática das juntas de movimentação é uma <strong>solução geométrica mínima para orçamento</strong>; a posição definitiva deve considerar paginação, mudanças de base, regiões sujeitas à flexão e o projeto.
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast">Resumo copiado.</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const ids=["length","width","environment","tileL","tileW","thickness","joint","tileWaste","boxQty","orientation","mortarBag","groutPack","inputWaste","spacerPerEdge","doubleThreshold","groutDensity","clipsPerEdge","manualMortar","desolidWidth","movementWidth","extraDesolid","structuralLength","sealDepth","sealCartridge","leveling","sealJoints","showMovementOnPlan"];
+const num=id=>Math.max(0,parseFloat($(id).value)||0);
+const fmt=(n,d=2)=>n.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtFlex=n=>n.toLocaleString("pt-BR",{maximumFractionDigits:2});
+const ceilSafe=n=>Number.isFinite(n)&&n>0?Math.ceil(n-1e-10):0;
+
+function getMortarAuto(tileArea){
+  if(tileArea<400) return {rate:5,trowel:"Quadrada 6 × 6 × 6 mm",bond:"simples"};
+  if(tileArea<900) return {rate:6,trowel:"Quadrada 8 × 8 × 8 mm",bond:"simples"};
+  if(tileArea<7000) return {rate:8,trowel:"Quadrada 8 × 8 × 8 mm",bond:"dupla"};
+  if(tileArea<14400) return {rate:9,trowel:"Quadrada 10 × 10 × 10 mm",bond:"dupla"};
+  return {rate:10,trowel:"Semicircular r ≈ 10 mm",bond:"dupla"};
+}
+
+const COMMON_TILE_FORMATS=[
+  [20,20],[30,30],[40,40],[45,45],[50,50],[60,60],[75,75],[80,80],
+  [90,90],[100,100],[120,120],[20,120],[30,60],[45,90],[60,120],[80,160]
+];
+const COMMON_JOINTS=[1.5,2,3,4,5];
+let lastSuggestion=null;
+
+function axisLayout(field,tile,jointM){
+  if(field<=0||tile<=0) return {positions:0,full:0,partial:false,cutSize:0};
+  const ratio=(field+jointM)/(tile+jointM);
+  const full=Math.max(0,Math.floor(ratio+1e-9));
+  const positions=Math.max(1,Math.ceil(ratio-1e-9));
+  const partial=positions>full;
+  const cutSize=partial?Math.max(0,field-full*(tile+jointM)):0;
+  return {positions,full,partial,cutSize};
+}
+
+function evaluateLayout(L,W,tileLcm,tileWcm,jointMm,orientation,desolidWidthMm){
+  const gap=Math.max(0,desolidWidthMm)/1000;
+  const fieldL=Math.max(0,L-2*gap);
+  const fieldW=Math.max(0,W-2*gap);
+  let tx=tileLcm/100,ty=tileWcm/100;
+  if(orientation==="longWidth"){const t=tx;tx=ty;ty=t}
+  const j=jointMm/1000;
+  const ax=axisLayout(fieldL,tx,j);
+  const ay=axisLayout(fieldW,ty,j);
+  const total=ax.positions*ay.positions;
+  const full=ax.full*ay.full;
+  const cuts=Math.max(0,total-full);
+  const cutRatio=total>0?cuts/total:1;
+  const minCutRatio=Math.min(
+    ax.partial&&tx>0?ax.cutSize/tx:1,
+    ay.partial&&ty>0?ay.cutSize/ty:1
+  );
+  const sliverPenalty=minCutRatio<0.20?(0.20-minCutRatio):0;
+  const tileArea=tx*ty;
+  const geometricExcess=Math.max(0,total*tileArea-fieldL*fieldW);
+  return {
+    tileLcm,tileWcm,jointMm,orientation,tx,ty,fieldL,fieldW,
+    cols:ax.positions,rows:ay.positions,fullCols:ax.full,fullRows:ay.full,
+    partialX:ax.partial,partialY:ay.partial,cutX:ax.cutSize,cutY:ay.cutSize,
+    total,full,cuts,cutRatio,minCutRatio,sliverPenalty,geometricExcess
+  };
+}
+
+function compareLayouts(a,b){
+  const A=[
+    a.cuts,
+    a.sliverPenalty>0?1:0,
+    a.sliverPenalty,
+    a.geometricExcess,
+    a.total,
+    Math.abs(a.jointMm-2)
+  ];
+  const B=[
+    b.cuts,
+    b.sliverPenalty>0?1:0,
+    b.sliverPenalty,
+    b.geometricExcess,
+    b.total,
+    Math.abs(b.jointMm-2)
+  ];
+  for(let i=0;i<A.length;i++){
+    if(Math.abs(A[i]-B[i])>1e-9) return A[i]-B[i];
+  }
+  return 0;
+}
+
+function findBestLayouts(d){
+  const list=[];
+  COMMON_TILE_FORMATS.forEach(([a,b])=>{
+    COMMON_JOINTS.forEach(j=>{
+      list.push(evaluateLayout(d.L,d.W,a,b,j,"longLength",d.desolidWidth));
+      if(a!==b) list.push(evaluateLayout(d.L,d.W,a,b,j,"longWidth",d.desolidWidth));
+    });
+  });
+  list.sort(compareLayouts);
+  return list;
+}
+
+function currentLayoutEvaluation(d){
+  return evaluateLayout(
+    d.L,d.W,d.tileL,d.tileW,d.joint,
+    $("orientation").value,d.desolidWidth
+  );
+}
+
+function orientationLabel(s){
+  return s==="longLength"?"lado 1 paralelo ao comprimento":"lado 1 paralelo à largura";
+}
+
+function renderSuggestion(d){
+  const ranked=findBestLayouts(d);
+  const best=ranked[0];
+  lastSuggestion=best||null;
+  if(!best){
+    $("optFormat").textContent="—";$("optJoint").textContent="—";$("optCuts").textContent="—";
+    $("optGrid").textContent="—";$("optAlternatives").innerHTML="";return;
+  }
+
+  const current=currentLayoutEvaluation(d);
+  $("optFormat").textContent=`${fmtFlex(best.tileLcm)} × ${fmtFlex(best.tileWcm)} cm`;
+  $("optOrientation").textContent=orientationLabel(best.orientation);
+  $("optJoint").textContent=`${fmtFlex(best.jointMm)} mm`;
+  $("optCuts").textContent=`${best.cuts}`;
+  $("optCuts").classList.toggle("opt-zero",best.cuts===0);
+
+  const saved=Math.max(0,current.cuts-best.cuts);
+  $("optCutCompare").textContent=current.cuts===best.cuts
+    ? `igual à configuração atual (${current.cuts})`
+    : `${saved} corte${saved===1?"":"s"} a menos que a configuração atual (${current.cuts})`;
+
+  $("optGrid").textContent=`${best.cols} × ${best.rows}`;
+  const rx=best.partialX?`${fmt(best.cutX*100,1)} cm`:"sem recorte";
+  const ry=best.partialY?`${fmt(best.cutY*100,1)} cm`:"sem recorte";
+  $("optRemainder").textContent=`bordas: ${rx} / ${ry}`;
+
+  const alternatives=[];
+  const seen=new Set([`${best.tileLcm}x${best.tileWcm}-${best.jointMm}-${best.orientation}`]);
+  for(const item of ranked){
+    const key=`${item.tileLcm}x${item.tileWcm}-${item.jointMm}-${item.orientation}`;
+    if(seen.has(key)) continue;
+    alternatives.push(item);seen.add(key);
+    if(alternatives.length===3) break;
+  }
+  $("optAlternatives").innerHTML=alternatives.map((a,i)=>`
+    <div class="opt-alt">
+      <b>${i+2}ª opção: ${fmtFlex(a.tileLcm)} × ${fmtFlex(a.tileWcm)} cm</b><br>
+      rejunte ${fmtFlex(a.jointMm)} mm • ${a.cuts} peça(s) cortada(s) • ${a.cols}×${a.rows}<br>
+      ${orientationLabel(a.orientation)}
+    </div>`).join("");
+}
+
+function snapCuts(total,count,module){
+  if(count<=1) return {cuts:[],error:0,maxSeg:total};
+  const cuts=[];
+  let prev=0, error=0;
+  for(let i=1;i<count;i++){
+    const remaining=count-i;
+    const ideal=(total*i)/count;
+    let snapped=ideal;
+    if(module>0){
+      const minAllowed=prev+module;
+      const maxAllowed=total-remaining*module;
+      snapped=Math.round(ideal/module)*module;
+      if(snapped<minAllowed) snapped=minAllowed;
+      if(snapped>maxAllowed) snapped=maxAllowed;
+    }
+    cuts.push(snapped);
+    error+=Math.abs(snapped-ideal);
+    prev=snapped;
+  }
+  const segments=[cuts[0]||total];
+  for(let i=1;i<cuts.length;i++) segments.push(cuts[i]-cuts[i-1]);
+  if(cuts.length) segments.push(total-cuts[cuts.length-1]);
+  return {cuts,error,maxSeg:Math.max(...segments)};
+}
+
+function movementGrid(L,W,maxDim,maxArea,moduleX,moduleY){
+  if(L<=0||W<=0) return {kx:1,ky:1,length:0,panelL:L,panelW:W,panelArea:L*W,xCuts:[],yCuts:[],snapError:0};
+  let best=null;
+  for(let kx=1;kx<=60;kx++){
+    for(let ky=1;ky<=60;ky++){
+      const sx=snapCuts(L,kx,moduleX);
+      const sy=snapCuts(W,ky,moduleY);
+      const pL=sx.maxSeg,pW=sy.maxSeg,pA=pL*pW;
+      const okDim=pL<=maxDim+1e-9 && pW<=maxDim+1e-9;
+      const okArea=pA<maxArea-1e-9;
+      if(!okDim||!okArea) continue;
+      const joints=(kx-1)+(ky-1);
+      const length=(kx-1)*W+(ky-1)*L;
+      const snapError=sx.error+sy.error;
+      const score=[snapError,joints,length,Math.abs(pL-pW)];
+      if(!best || score.some((v,i)=>v<best.score[i] && score.slice(0,i).every((q,j)=>q===best.score[j]))){
+        best={kx,ky,length,panelL:pL,panelW:pW,panelArea:pA,xCuts:sx.cuts,yCuts:sy.cuts,snapError,score};
+      }
+    }
+  }
+  return best || {kx:1,ky:1,length:0,panelL:L,panelW:W,panelArea:L*W,xCuts:[],yCuts:[],snapError:0};
+}
+
+function getData(){
+  const L=num("length"),W=num("width"),area=L*W;
+  const tileL=num("tileL"),tileW=num("tileW"),th=num("thickness"),joint=num("joint");
+  const tileWaste=num("tileWaste")/100,inputWaste=num("inputWaste")/100;
+  const tileAreaCm2=tileL*tileW,tileAreaM2=tileAreaCm2/10000;
+  const threshold=num("doubleThreshold")||900;
+  const doubleBond=tileAreaCm2>=threshold;
+  const auto=getMortarAuto(tileAreaCm2);
+  const manual=num("manualMortar");
+  const mortarRate=manual>0?manual:auto.rate;
+  const mortarKgNet=area*mortarRate;
+  const mortarKgGross=mortarKgNet*(1+inputWaste);
+  const mortarBag=num("mortarBag")||20;
+  const mortarBags=ceilSafe(mortarKgGross/mortarBag);
+
+  const tileNet=tileAreaM2>0?area/tileAreaM2:0;
+  const tilesBuy=ceilSafe(tileNet*(1+tileWaste));
+  const boxQty=Math.max(1,ceilSafe(num("boxQty")||1));
+  const boxes=ceilSafe(tilesBuy/boxQty);
+
+  const A=tileL*10,B=tileW*10;
+  const density=num("groutDensity")||1.6;
+  const groutRate=(A>0&&B>0)?((A+B)/(A*B))*th*joint*density:0;
+  const groutKgNet=area*groutRate;
+  const groutKgGross=groutKgNet*(1+inputWaste);
+  const groutPack=num("groutPack")||1;
+  const groutPacks=ceilSafe(groutKgGross/groutPack);
+
+  let tileX=tileL/100,tileY=tileW/100;
+  if($("orientation").value==="longWidth"){tileX=tileW/100;tileY=tileL/100}
+  const jM=joint/1000;
+  const cols=(tileX+jM)>0?ceilSafe((L+jM)/(tileX+jM)):0;
+  const rows=(tileY+jM)>0?ceilSafe((W+jM)/(tileY+jM)):0;
+  const gridPositions=cols*rows;
+  const sharedEdges=Math.max(0,(cols-1)*rows+cols*(rows-1));
+  const spacerPerEdge=Math.max(1,ceilSafe(num("spacerPerEdge")||1));
+  const spacersNet=sharedEdges*spacerPerEdge;
+  const spacersGross=ceilSafe(spacersNet*(1+inputWaste));
+
+  const leveling=$("leveling").checked;
+  const clipsPerEdge=Math.max(1,ceilSafe(num("clipsPerEdge")||2));
+  const clipsNet=leveling?sharedEdges*clipsPerEdge:0;
+  const clipsGross=leveling?ceilSafe(clipsNet*(1+inputWaste)):0;
+
+  const perimeter=2*(L+W);
+  const env=$("environment").value;
+  const maxArea=env==="dry"?32:20;
+  const maxDim=env==="dry"?8:4;
+  const movement=area>=maxArea||L>maxDim||W>maxDim;
+  const movementReason=movement
+    ? (env==="dry"
+      ? "Interior seco: área ≥ 32 m² ou dimensão > 8 m."
+      : "Área externa ou interior exposto à umidade/insolação: área ≥ 20 m² ou dimensão > 4 m.")
+    : "";
+  const movementPlan=movement?movementGrid(L,W,maxDim,maxArea,tileX+jM,tileY+jM):{kx:1,ky:1,length:0,panelL:L,panelW:W,panelArea:area,xCuts:[],yCuts:[],snapError:0};
+  const movementLength=movementPlan.length;
+  const movementVertical=Math.max(0,movementPlan.kx-1);
+  const movementHorizontal=Math.max(0,movementPlan.ky-1);
+
+  const desolidWidth=num("desolidWidth")||5;
+  const movementWidth=num("movementWidth")||8;
+  const extraDesolid=num("extraDesolid");
+  const desolidLength=perimeter+extraDesolid;
+  const structuralLength=num("structuralLength");
+  const sealDepth=num("sealDepth")||5;
+  const sealCartridge=num("sealCartridge")||300;
+  const sealJoints=$("sealJoints").checked;
+  const showMovementOnPlan=$("showMovementOnPlan").checked;
+  const flexibleJointLength=desolidLength+movementLength;
+  const sealMlNet=sealJoints
+    ? desolidLength*desolidWidth*sealDepth + movementLength*movementWidth*sealDepth
+    : 0;
+  const sealMlGross=sealMlNet*(1+inputWaste);
+  const sealCartridges=sealJoints?ceilSafe(sealMlGross/sealCartridge):0;
+  const backerNet=sealJoints?flexibleJointLength:0;
+  const backerGross=sealJoints?backerNet*(1+inputWaste):0;
+
+  return {L,W,area,tileL,tileW,th,joint,tileWaste,inputWaste,tileAreaCm2,tileAreaM2,threshold,doubleBond,auto,manual,mortarRate,mortarKgNet,mortarKgGross,mortarBag,mortarBags,tileNet,tilesBuy,boxQty,boxes,density,groutRate,groutKgNet,groutKgGross,groutPack,groutPacks,tileX,tileY,jM,cols,rows,gridPositions,sharedEdges,spacerPerEdge,spacersNet,spacersGross,leveling,clipsPerEdge,clipsNet,clipsGross,perimeter,env,maxArea,maxDim,movement,movementReason,movementPlan,movementLength,movementVertical,movementHorizontal,desolidWidth,movementWidth,extraDesolid,desolidLength,structuralLength,sealDepth,sealCartridge,sealJoints,showMovementOnPlan,flexibleJointLength,sealMlNet,sealMlGross,sealCartridges,backerNet,backerGross};
+}
+
+function renderStatus(d){
+  const ds=$("doubleStatus");
+  ds.className="status "+(d.doubleBond?"danger":"good");
+  $("doubleTitle").textContent=d.doubleBond?"⚠ DUPLA COLAGEM":"COLAGEM SIMPLES";
+  $("doubleText").textContent=d.doubleBond
+    ? `${fmtFlex(d.tileAreaCm2)} cm² ≥ ${fmtFlex(d.threshold)} cm²`
+    : `${fmtFlex(d.tileAreaCm2)} cm² < ${fmtFlex(d.threshold)} cm²`;
+
+  $("trowelText").textContent=`${d.auto.trowel} • referência automática`;
+  const js=$("jointStatus");
+  js.className="status "+(d.movement?"warn":"good");
+  $("jointText").textContent=d.movement
+    ? `${d.movementVertical} vertical + ${d.movementHorizontal} horizontal • ${fmt(d.movementLength)} m`
+    : "Somente assentamento + dessolidarização perimetral";
+}
+
+function renderResults(d){
+  $("areaBadge").textContent=`Área: ${fmt(d.area)} m²`;
+  $("dimPill").textContent=`${fmt(d.L)} × ${fmt(d.W)} m`;
+
+  $("tileVal").textContent=d.tilesBuy;
+  $("tileSub").textContent=`${d.boxes} caixa${d.boxes===1?"":"s"} de ${d.boxQty} • ${fmtFlex(d.tileWaste*100)}% de perda`;
+
+  $("mortarVal").textContent=d.mortarBags;
+  $("mortarSub").textContent=`${fmt(d.mortarKgGross)} kg • ${fmtFlex(d.mortarRate)} kg/m² • saco ${fmtFlex(d.mortarBag)} kg`;
+  $("mortarCard").classList.toggle("alert",d.doubleBond);
+
+  $("groutVal").textContent=d.groutPacks;
+  $("groutSub").textContent=`${fmt(d.groutKgGross,2)} kg • embalagem ${fmtFlex(d.groutPack)} kg`;
+
+  $("spacerVal").textContent=d.spacersGross;
+  $("spacerSub").textContent=`${d.spacerPerEdge} por junta compartilhada • inclui perda`;
+
+  $("tileNet").textContent=`${fmt(d.tileNet,1)} peças equivalentes`;
+  $("tileGross").textContent=`${d.tilesBuy} peças`;
+  $("tileBuy").textContent=`${d.boxes} caixa(s)`;
+
+  $("mortarRate").textContent=`${fmtFlex(d.mortarRate)} kg/m²`;
+  $("mortarGross").textContent=`${fmt(d.mortarKgGross)} kg`;
+  $("mortarBuy").textContent=`${d.mortarBags} saco(s) × ${fmtFlex(d.mortarBag)} kg`;
+
+  $("groutRate").textContent=`${fmt(d.groutRate,3)} kg/m²`;
+  $("groutGross").textContent=`${fmt(d.groutKgGross,2)} kg`;
+  $("groutBuy").textContent=`${d.groutPacks} emb. × ${fmtFlex(d.groutPack)} kg`;
+
+  $("spacerNet").textContent=`${d.spacersNet} un.`;
+  $("spacerGross").textContent=`${d.spacersGross} un.`;
+
+  $("levelRow").style.display=d.leveling?"table-row":"none";
+  $("clipsNet").textContent=`${d.clipsNet} un.`;
+  $("clipsGross").textContent=`${d.clipsGross} un.`;
+  $("clipsBuy").textContent=d.leveling?"clips descartáveis":"—";
+
+  $("perimeterNet").textContent=`${fmt(d.desolidLength)} m`;
+  $("desolidWidthOut").textContent=`largura ${fmtFlex(d.desolidWidth)} mm`;
+
+  $("movementNet").textContent=d.movement?`${fmt(d.movementLength)} m`:"0,00 m";
+  $("movementWidthOut").textContent=d.movement?`largura ${fmtFlex(d.movementWidth)} mm`:"não requerida pelo gatilho dimensional";
+  $("movementLayout").textContent=d.movement
+    ? `${d.movementVertical} vertical(is) + ${d.movementHorizontal} horizontal(is)`
+    : "—";
+
+  $("backerNet").textContent=d.sealJoints?`${fmt(d.backerNet)} m`:"não calculado";
+  $("backerGross").textContent=d.sealJoints?`${fmt(d.backerGross)} m`:"—";
+  $("backerBuy").textContent=d.sealJoints?"comprimento com perda":"—";
+
+  $("sealNet").textContent=d.sealJoints?`${fmt(d.sealMlNet/1000,2)} L`:"não calculado";
+  $("sealGross").textContent=d.sealJoints?`${fmt(d.sealMlGross/1000,2)} L`:"—";
+  $("sealBuy").textContent=d.sealJoints?`${d.sealCartridges} cartucho(s) × ${fmtFlex(d.sealCartridge)} mL`:"—";
+
+  $("structuralNet").textContent=`${fmt(d.structuralLength)} m`;
+
+  $("jointGuideAssent").textContent=`${fmtFlex(d.joint)} mm`;
+  $("jointGuideDesolid").textContent=`${fmt(d.desolidLength)} m • ${fmtFlex(d.desolidWidth)} mm`;
+  $("jointGuideMovement").textContent=d.movement
+    ? `${fmt(d.movementLength)} m • ${fmtFlex(d.movementWidth)} mm • ajuste ${fmt(d.movementPlan.snapError,2)} m`
+    : "não exigida pelo tamanho do pano";
+  $("jointGuideStructural").textContent=d.structuralLength>0
+    ? `${fmt(d.structuralLength)} m informados`
+    : "verificar projeto estrutural";
+
+  $("tileAreaStat").textContent=`${fmtFlex(d.tileAreaCm2)} cm²`;
+  $("gridStat").textContent=`${d.cols} × ${d.rows} = ${d.gridPositions}`;
+  $("mortarStat").textContent=`${fmtFlex(d.mortarRate)} kg/m²`;
+  $("groutStat").textContent=`${fmt(d.groutRate,3)} kg/m²`;
+
+  $("doubleNotice").classList.toggle("show",d.doubleBond);
+  $("levelNotice").classList.toggle("show",d.leveling);
+
+  const mv=$("movementNotice");
+  mv.classList.toggle("show",d.movement);
+  mv.innerHTML=d.movement
+    ? `<strong>⚠ JUNTA DE MOVIMENTAÇÃO:</strong> ${d.movementReason}
+       Para orçamento, a calculadora propõe ${d.movementVertical} junta(s) vertical(is) e ${d.movementHorizontal} horizontal(is),
+       totalizando <strong>${fmt(d.movementLength)} m</strong>, formando panos de aproximadamente
+       <strong>${fmt(d.movementPlan.panelL)} × ${fmt(d.movementPlan.panelW)} m (${fmt(d.movementPlan.panelArea)} m²)</strong>.
+       As posições são ajustadas para <strong>coincidir o máximo possível com a modulação do piso</strong> (desvio acumulado estimado de ${fmt(d.movementPlan.snapError,2)} m).
+       A junta deve atravessar o sistema de revestimento conforme o detalhe adotado, receber material deformável/limitador de profundidade e selante flexível,
+       e sua posição definitiva deve ser compatibilizada com paginação, base e projeto.`
+    : "";
+}
+
+function svgEl(name,attrs={}){
+  const e=document.createElementNS("http://www.w3.org/2000/svg",name);
+  Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,v));
+  return e;
+}
+function addText(svg,x,y,text,attrs={}){
+  const t=svgEl("text",{x,y,"font-size":attrs.size||14,"font-weight":attrs.weight||700,fill:attrs.fill||"#4f5564","text-anchor":attrs.anchor||"middle"});
+  t.textContent=text;svg.appendChild(t);return t;
+}
+function renderPlan(d){
+  const svg=$("plan");svg.innerHTML="";
+  if(d.L<=0||d.W<=0||d.tileX<=0||d.tileY<=0){addText(svg,450,250,"Informe as dimensões do ambiente e da peça.",{size:20});return}
+  const maxW=735,maxH=330,scale=Math.min(maxW/d.L,maxH/d.W);
+  const rw=d.L*scale,rh=d.W*scale,x=(900-rw)/2,y=(500-rh)/2-2;
+  svg.appendChild(svgEl("rect",{x:x+5,y:y+6,width:rw,height:rh,rx:3,fill:"rgba(36,42,59,.06)"}));
+  svg.appendChild(svgEl("rect",{x,y,width:rw,height:rh,rx:2,fill:"#fff",stroke:"#7158e2","stroke-width":4}));
+
+  const stepX=(d.tileX+d.jM)*scale,stepY=(d.tileY+d.jM)*scale;
+  let px=x+stepX;
+  while(px<x+rw-1){
+    svg.appendChild(svgEl("line",{x1:px,y1:y,x2:px,y2:y+rh,stroke:"#b7bdc9","stroke-width":1.4}));
+    px+=stepX;
+  }
+  let py=y+stepY;
+  while(py<y+rh-1){
+    svg.appendChild(svgEl("line",{x1:x,y1:py,x2:x+rw,y2:py,stroke:"#b7bdc9","stroke-width":1.4}));
+    py+=stepY;
+  }
+
+  if(d.movement && d.showMovementOnPlan){
+    (d.movementPlan.xCuts||[]).forEach(cut=>{
+      const mx=x+cut*scale;
+      svg.appendChild(svgEl("line",{x1:mx,y1:y,x2:mx,y2:y+rh,stroke:"#d97706","stroke-width":4,"stroke-dasharray":"10 5"}));
+    });
+    (d.movementPlan.yCuts||[]).forEach(cut=>{
+      const my=y+cut*scale;
+      svg.appendChild(svgEl("line",{x1:x,y1:my,x2:x+rw,y2:my,stroke:"#d97706","stroke-width":4,"stroke-dasharray":"10 5"}));
+    });
+  }
+
+  const usedX=Math.floor(d.L/(d.tileX+d.jM))*(d.tileX+d.jM);
+  const usedY=Math.floor(d.W/(d.tileY+d.jM))*(d.tileY+d.jM);
+  if(usedX>0&&usedX<d.L-0.001){
+    const cx=x+usedX*scale;
+    svg.appendChild(svgEl("line",{x1:cx,y1:y,x2:cx,y2:y+rh,stroke:"#d97706","stroke-width":2,"stroke-dasharray":"6 5"}));
+  }
+  if(usedY>0&&usedY<d.W-0.001){
+    const cy=y+usedY*scale;
+    svg.appendChild(svgEl("line",{x1:x,y1:cy,x2:x+rw,y2:cy,stroke:"#d97706","stroke-width":2,"stroke-dasharray":"6 5"}));
+  }
+
+  const dim="#626878";
+  svg.appendChild(svgEl("line",{x1:x,y1:y+rh+28,x2:x+rw,y2:y+rh+28,stroke:dim,"stroke-width":1}));
+  svg.appendChild(svgEl("line",{x1:x,y1:y+rh+21,x2:x,y2:y+rh+35,stroke:dim,"stroke-width":1}));
+  svg.appendChild(svgEl("line",{x1:x+rw,y1:y+rh+21,x2:x+rw,y2:y+rh+35,stroke:dim,"stroke-width":1}));
+  addText(svg,x+rw/2,y+rh+49,`${fmt(d.L)} m`,{size:13,fill:dim});
+  svg.appendChild(svgEl("line",{x1:x-30,y1:y,x2:x-30,y2:y+rh,stroke:dim,"stroke-width":1}));
+  svg.appendChild(svgEl("line",{x1:x-37,y1:y,x2:x-23,y2:y,stroke:dim,"stroke-width":1}));
+  svg.appendChild(svgEl("line",{x1:x-37,y1:y+rh,x2:x-23,y2:y+rh,stroke:dim,"stroke-width":1}));
+  const vt=addText(svg,x-48,y+rh/2,`${fmt(d.W)} m`,{size:13,fill:dim});
+  vt.setAttribute("transform",`rotate(-90 ${x-48} ${y+rh/2})`);
+
+  addText(svg,x+rw/2,y-18,`${fmtFlex(d.tileL)} × ${fmtFlex(d.tileW)} cm • assentamento ${fmtFlex(d.joint)} mm`,{size:12,fill:"#7158e2",weight:850});
+  if(d.movement && d.showMovementOnPlan){
+    addText(svg,x+rw/2,y+rh+73,`Movimentação: ${fmt(d.movementLength)} m • ${d.movementVertical}V + ${d.movementHorizontal}H • casada com modulação`,{size:11,fill:"#b26108",weight:850});
+  }else if(d.movement && !d.showMovementOnPlan){
+    addText(svg,x+rw/2,y+rh+73,`Visualização limpa • juntas internas ocultas`,{size:11,fill:"#6d7280",weight:850});
+  }
+}
+
+function saveState(){
+  const s={};ids.forEach(id=>{s[id]=$(id).type==="checkbox"?$(id).checked:$(id).value});
+  localStorage.setItem("pisoCalcState",JSON.stringify(s));
+}
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem("pisoCalcState")||"null");if(!s)return;
+    ids.forEach(id=>{if(s[id]!==undefined){if($(id).type==="checkbox")$(id).checked=!!s[id];else $(id).value=s[id]}});
+  }catch(e){}
+}
+function update(){
+  const d=getData();renderStatus(d);renderSuggestion(d);renderResults(d);renderPlan(d);saveState();
+}
+ids.forEach(id=>$(id).addEventListener($(id).type==="checkbox"?"change":"input",update));
+["environment","orientation"].forEach(id=>$(id).addEventListener("change",update));
+
+$("applySuggestionBtn").addEventListener("click",()=>{
+  if(!lastSuggestion) return;
+  $("tileL").value=lastSuggestion.tileLcm;
+  $("tileW").value=lastSuggestion.tileWcm;
+  $("joint").value=lastSuggestion.jointMm;
+  $("orientation").value=lastSuggestion.orientation;
+  update();
+  const t=$("toast");
+  t.textContent="Sugestão aplicada à paginação.";
+  t.classList.add("show");
+  setTimeout(()=>{t.classList.remove("show");t.textContent="Resumo copiado."},1600);
+});
+
+$("resetBtn").addEventListener("click",()=>{
+  localStorage.removeItem("pisoCalcState");
+  const defaults={length:"5",width:"4",environment:"dry",tileL:"60",tileW:"60",thickness:"9",joint:"2",tileWaste:"10",boxQty:"4",orientation:"longLength",mortarBag:"20",groutPack:"1",inputWaste:"5",spacerPerEdge:"1",doubleThreshold:"900",groutDensity:"1.6",clipsPerEdge:"2",manualMortar:"0",desolidWidth:"5",movementWidth:"8",extraDesolid:"0",structuralLength:"0",sealDepth:"5",sealCartridge:"300"};
+  Object.entries(defaults).forEach(([k,v])=>$(k).value=v);$("leveling").checked=true;$("sealJoints").checked=true;$("showMovementOnPlan").checked=true;update();
+});
+$("printBtn").addEventListener("click",()=>window.print());
+$("copyBtn").addEventListener("click",async()=>{
+  const d=getData();
+  const txt=`CALCULADORA DE PISOS
+Ambiente: ${fmt(d.L)} x ${fmt(d.W)} m = ${fmt(d.area)} m²
+Peça: ${fmtFlex(d.tileL)} x ${fmtFlex(d.tileW)} cm | área ${fmtFlex(d.tileAreaCm2)} cm²
+Junta/rejunte: ${fmtFlex(d.joint)} mm
+Colagem: ${d.doubleBond?"DUPLA COLAGEM":"colagem simples"}
+Desempenadeira de referência: ${d.auto.trowel}
+
+Piso: ${d.tilesBuy} peças | ${d.boxes} caixa(s) de ${d.boxQty}
+Argamassa: ${fmt(d.mortarKgGross)} kg | ${d.mortarBags} saco(s) de ${fmtFlex(d.mortarBag)} kg
+Rejunte: ${fmt(d.groutKgGross,2)} kg | ${d.groutPacks} embalagem(ns) de ${fmtFlex(d.groutPack)} kg
+Espaçadores: ${d.spacersGross} un.
+${d.leveling?`Clips niveladores: ${d.clipsGross} un.`:"Sistema nivelador: não calculado"}
+Junta de assentamento: ${fmtFlex(d.joint)} mm
+Junta de dessolidarização: ${fmt(d.desolidLength)} m | largura ${fmtFlex(d.desolidWidth)} mm
+Junta de movimentação: ${fmt(d.movementLength)} m | ${d.movementVertical} vertical(is) + ${d.movementHorizontal} horizontal(is) | largura ${fmtFlex(d.movementWidth)} mm
+Junta estrutural existente informada: ${fmt(d.structuralLength)} m
+Sugestão para reduzir recortes: ${lastSuggestion?`${fmtFlex(lastSuggestion.tileLcm)} x ${fmtFlex(lastSuggestion.tileWcm)} cm | rejunte ${fmtFlex(lastSuggestion.jointMm)} mm | ${lastSuggestion.cuts} peça(s) cortada(s) | ${orientationLabel(lastSuggestion.orientation)}`:"—"}
+${d.sealJoints?`Selante flexível estimado: ${fmt(d.sealMlGross/1000,2)} L | ${d.sealCartridges} cartucho(s)
+Fundo de junta: ${fmt(d.backerGross)} m`:"Selante/fundo de junta: não calculados"}
+${d.movement?"ALERTA: conferir posição definitiva das juntas de movimentação no projeto e na paginação.":""}`;
+  try{
+    await navigator.clipboard.writeText(txt);$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1600);
+  }catch(e){alert(txt)}
+});
+let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>renderPlan(getData()),120)});
+loadState();update();
+</script>
+</body>
+</html>
